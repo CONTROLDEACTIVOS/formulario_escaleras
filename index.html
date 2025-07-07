@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario Escaleras</title>
+</head>
+<body>
+  <h2>Formulario de Registro de Escaleras</h2>
+  <form action="https://n8n.tecnico.i.telconet.net/webhook-test/formulario_escaleras" method="POST">
+    <label for="fecha">Fecha:</label><br>
+    <input type="date" id="fecha" name="fecha" required><br><br>
+
+    <label for="vehiculo">N° Vehículo:</label><br>
+    <input type="text" id="vehiculo" name="vehiculo" required><br><br>
+
+    <label for="placas">Placas:</label><br>
+    <input type="text" id="placas" name="placas" required><br><br>
+
+    <label for="responsable">Responsable (Correo):</label><br>
+    <input type="email" id="responsable" name="responsable" required><br><br>
+
+    <label for="serie">Serie del Equipo:</label><br>
+    <input type="text" id="serie" name="serie" required><br><br>
+
+    <label for="articulo">Nombre del Artículo:</label><br>
+    <input type="text" id="articulo" name="articulo" required><br><br>
+
+    <label for="estado">Estado:</label><br>
+    <select id="estado" name="estado" required>
+      <option value="Buen estado">Buen estado</option>
+      <option value="Dañado">Dañado</option>
+      <option value="Faltante">Faltante</option>
+    </select><br><br>
+
+    <label for="observacion">Observación:</label><br>
+    <textarea id="observacion" name="observacion" rows="4" cols="50"></textarea><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    // Asignar la fecha actual al campo de fecha automáticamente
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha').value = today;
+  </script>
+</body>
+</html>
