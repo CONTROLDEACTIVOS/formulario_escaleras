@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CONTROL DE ACTIVOS - ESCALERAS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eef2f7;
+      padding: 20px;
+    }
+    h1 {
+      color: navy;
+    }
+    h2 {
+      margin-top: -10px;
+      color: #444;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    input[readonly] {
+      background-color: #eee;
+    }
+    button {
+      background-color: navy;
+      color: white;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004080;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #003366;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>CONTROL DE ACTIVOS</h1>
+  <h2>CONTROL DE ESCALERAS</h2>
+
+  <form id="formulario">
+    <label>Fecha y hora:</label>
+    <input type="text" id="fecha" name="fecha" readonly>
+
+    <label>N° Vehículo:</label>
+    <input type="text" id="vehiculo" name="vehiculo" required>
+
+    <label>Placas:</label>
+    <input type="text" id="placas" name="placas" required>
+
+    <label>Responsable (Correo):</label>
+    <input type="email" id="responsable" name="responsable" required>
+
+    <label>Serie del Equipo:</label>
+    <input type="text" id="serie">
+
+    <label>Nombre del Artículo:</label>
+    <input type="text" id="articulo">
+
+    <label>Estado:</label>
+    <select id="estado">
+      <option value="Buen estado">Buen estado</option>
+      <option value="Dañado">Dañado</option>
+    </select>
+
+    <button type="button" onclick="agregarEquipo()">+ Agregar Equipo</button>
+
+    <table id="tablaEquipos" style="display:none;">
+      <thead>
+        <tr>
+          <th>Serie</th>
+          <th>Nombre del Artículo</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <label>Observación:</label>
+    <textarea id="observacion" name="observacion" rows="3"></textarea>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById("fecha").value = new Date().toLocaleString("es-EC");
+
+    const equipos = [];
+    const tabla = document.getElementById("tablaEquipos");
+    const tbody = tabla.querySelector("tbody");
+
+    function agregarEquipo() {
+      const serie = document.getElementById("serie").value.trim();
+      const articulo = document.getElementById("articulo").value.trim();
+      const estado = document.getElementById("estado").value;
+
+      if (!serie || !articulo) {
+        alert("Debes completar todos los campos del equipo.");
+        return;
+      }
+
+      equipos.push({ serie, articulo, estado });
+
+      const row = tbody.insertRow();
+      row.insertCell().textContent = serie;
+      row.insertCell().textContent = articulo;
+      row.insertCell().textContent = estado;
+
+      tabla.style.display = "table";
+
+      document.getElementById("serie").value = "";
+      document.getElementById("articulo").value = "";
+      document.getElementById("estado").value = "Buen estado";
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        fecha: document.getElementById("fecha").value,
+        vehiculo: document.getElementById("vehiculo").value,
+        placas: document.getElementById("placas").value,
+        responsable: document.getElementById("responsable").value,
+        observacion: document.getElementById("observacion").value,
+        equipos: equipos
+      };
+
+      fetch("https://n8n.tecnico.i.telconet.net/webhook/formulario_escaleras", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert("Formulario enviado correctamente.");
+        location.reload();
+      }).catch(err => {
+        alert("Error al enviar: " + err);
+      });
+    });
+  </script>
+</body>
+</html>
