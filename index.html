@@ -134,7 +134,6 @@
       row.insertCell().textContent = estado;
       tabla.style.display = "table";
 
-      // limpiar campos
       document.getElementById("serie").value = "";
       document.getElementById("articulo").value = "";
       document.getElementById("estado").value = "Buen estado";
@@ -152,8 +151,12 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       }).then(res => {
-        alert("Formulario enviado correctamente");
-        location.reload();
+        if (res.ok) {
+          alert("Formulario enviado correctamente");
+          location.reload();
+        } else {
+          alert("Error al enviar formulario");
+        }
       }).catch(err => {
         console.error(err);
         alert("Error al enviar formulario");
