@@ -1,114 +1,126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Formulario Escaleras</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formulario de Escaleras</title>
   <style>
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      color: #000;
+      margin: 0;
+      padding: 0;
     }
-    th, td {
-      border: 1px solid #000;
-      padding: 6px;
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    h2 {
+      color: #003366;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="datetime-local"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fafafa;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 80px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #003366;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #001f4d;
+    }
+
+    .tabla-equipos {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    .tabla-equipos th,
+    .tabla-equipos td {
+      border: 1px solid #ccc;
+      padding: 10px;
       text-align: left;
     }
-    th {
-      background-color: #0B3B8C;
-      color: white;
+
+    .tabla-equipos th {
+      background-color: #003366;
+      color: #fff;
     }
   </style>
 </head>
 <body>
-  <h2>Formulario de Registro de Escaleras</h2>
+  <div class="container">
+    <h2>CONTROL DE ACTIVOS</h2>
+    <p><strong>CONTROL DE ESCALERAS</strong></p>
 
-  <form id="formulario" action="https://n8n.tecnico.i.telconet.net/webhook-test/formulario_escaleras" method="POST">
-    <label>Fecha y hora:</label><br>
-    <input type="text" name="fecha" id="fecha" required readonly><br><br>
+    <form action="https://n8n.tecnico.i.telconet.net/webhook/formulario_escaleras" method="POST">
+      <label for="fecha">Fecha y hora:</label>
+      <input type="datetime-local" name="Fecha" required>
 
-    <label>N° Vehículo:</label><br>
-    <input type="text" name="vehiculo" required><br><br>
+      <label for="vehiculo">N° Vehículo:</label>
+      <input type="text" name="N°Vehículo" required>
 
-    <label>Placas:</label><br>
-    <input type="text" name="placas" required><br><br>
+      <label for="placas">Placas:</label>
+      <input type="text" name="Placas" required>
 
-    <label>Responsable (Correo):</label><br>
-    <input type="email" name="responsable" required><br><br>
+      <label for="responsable">Responsable (Correo):</label>
+      <input type="email" name="Responsable" required>
 
-    <!-- Campos para agregar equipos -->
-    <label>Serie del Equipo:</label><br>
-    <input type="text" id="serie_temp"><br><br>
+      <label for="serie">Serie del Equipo:</label>
+      <input type="text" name="SERIE" required>
 
-    <label>Nombre del Artículo:</label><br>
-    <input type="text" id="articulo_temp"><br><br>
+      <label for="nombre">Nombre del Artículo:</label>
+      <input type="text" name="NOMBRE_ARTICULO" required>
 
-    <label>Estado:</label><br>
-    <select id="estado_temp">
-      <option value="Buen estado">Buen estado</option>
-      <option value="Dañado">Dañado</option>
-      <option value="Faltante">Faltante</option>
-    </select><br><br>
+      <label for="estado">Estado:</label>
+      <select name="Estado" required>
+        <option value="Buen estado">Buen estado</option>
+        <option value="Dañado">Dañado</option>
+      </select>
 
-    <button type="button" onclick="agregarEquipo()">+ Agregar Equipo</button><br><br>
+      <label for="observacion">Observación:</label>
+      <textarea name="OBSERVACION"></textarea>
 
-    <!-- Tabla con equipos agregados -->
-    <table id="tabla_equipos">
-      <thead>
-        <tr>
-          <th>Serie</th>
-          <th>Nombre del Artículo</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <br>
-    <label>Observación:</label><br>
-    <textarea name="observacion" rows="4" cols="50"></textarea><br><br>
-
-    <!-- Campo oculto para equipos en formato texto -->
-    <input type="hidden" name="equipos" id="equipos_json">
-
-    <button type="submit">Enviar</button>
-  </form>
-
-  <script>
-    const hoy = new Date();
-    const fechaFormateada = hoy.toLocaleString('es-EC');
-    document.getElementById('fecha').value = fechaFormateada;
-
-    const equipos = [];
-
-    function agregarEquipo() {
-      const serie = document.getElementById('serie_temp').value.trim();
-      const articulo = document.getElementById('articulo_temp').value.trim();
-      const estado = document.getElementById('estado_temp').value;
-
-      if (!serie || !articulo) {
-        alert('Falta completar serie o artículo');
-        return;
-      }
-
-      equipos.push({ serie, articulo, estado });
-      actualizarTabla();
-      document.getElementById('serie_temp').value = '';
-      document.getElementById('articulo_temp').value = '';
-    }
-
-    function actualizarTabla() {
-      const tbody = document.querySelector('#tabla_equipos tbody');
-      tbody.innerHTML = '';
-
-      equipos.forEach(item => {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `<td>${item.serie}</td><td>${item.articulo}</td><td>${item.estado}</td>`;
-        tbody.appendChild(fila);
-      });
-
-      document.getElementById('equipos_json').value = JSON.stringify(equipos);
-    }
-  </script>
+      <button class="btn" type="submit">Enviar</button>
+    </form>
+  </div>
 </body>
 </html>
