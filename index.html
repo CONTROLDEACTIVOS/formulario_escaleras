@@ -1,96 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>CONTROL DE ACTIVOS - ESCALERAS</title>
+  <title>Formulario Escaleras</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #eef2f7;
-      padding: 20px;
-    }
-    h1 {
-      color: navy;
-    }
-    h2 {
-      margin-top: -10px;
-      color: #444;
-    }
-    label {
-      font-weight: bold;
-      display: block;
+    table {
+      border-collapse: collapse;
+      width: 100%;
       margin-top: 10px;
     }
-    input, select, textarea {
-      width: 100%;
-      padding: 6px;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    input[readonly] {
-      background-color: #eee;
-    }
-    button {
-      background-color: navy;
-      color: white;
-      padding: 10px 14px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #004080;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
     th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
+      border: 1px solid #000;
+      padding: 6px;
       text-align: left;
     }
     th {
-      background-color: #003366;
+      background-color: #0B3B8C;
       color: white;
     }
   </style>
 </head>
 <body>
-  <h1>CONTROL DE ACTIVOS</h1>
-  <h2>CONTROL DE ESCALERAS</h2>
+  <h2>Formulario de Registro de Escaleras</h2>
 
-  <form id="formulario">
-    <label>Fecha y hora:</label>
-    <input type="text" id="fecha" name="fecha" readonly>
+  <form id="formulario" action="https://n8n.tecnico.i.telconet.net/webhook-test/formulario_escaleras" method="POST">
+    <label>Fecha y hora:</label><br>
+    <input type="text" name="fecha" id="fecha" required readonly><br><br>
 
-    <label>N° Vehículo:</label>
-    <input type="text" id="vehiculo" name="vehiculo" required>
+    <label>N° Vehículo:</label><br>
+    <input type="text" name="vehiculo" required><br><br>
 
-    <label>Placas:</label>
-    <input type="text" id="placas" name="placas" required>
+    <label>Placas:</label><br>
+    <input type="text" name="placas" required><br><br>
 
-    <label>Responsable (Correo):</label>
-    <input type="email" id="responsable" name="responsable" required>
+    <label>Responsable (Correo):</label><br>
+    <input type="email" name="responsable" required><br><br>
 
-    <label>Serie del Equipo:</label>
-    <input type="text" id="serie">
+    <!-- Campos para agregar equipos -->
+    <label>Serie del Equipo:</label><br>
+    <input type="text" id="serie_temp"><br><br>
 
-    <label>Nombre del Artículo:</label>
-    <input type="text" id="articulo">
+    <label>Nombre del Artículo:</label><br>
+    <input type="text" id="articulo_temp"><br><br>
 
-    <label>Estado:</label>
-    <select id="estado">
+    <label>Estado:</label><br>
+    <select id="estado_temp">
       <option value="Buen estado">Buen estado</option>
       <option value="Dañado">Dañado</option>
-    </select>
+      <option value="Faltante">Faltante</option>
+    </select><br><br>
 
-    <button type="button" onclick="agregarEquipo()">+ Agregar Equipo</button>
+    <button type="button" onclick="agregarEquipo()">+ Agregar Equipo</button><br><br>
 
-    <table id="tablaEquipos" style="display:none;">
+    <!-- Tabla con equipos agregados -->
+    <table id="tabla_equipos">
       <thead>
         <tr>
           <th>Serie</th>
@@ -101,66 +64,51 @@
       <tbody></tbody>
     </table>
 
-    <label>Observación:</label>
-    <textarea id="observacion" name="observacion" rows="3"></textarea>
+    <br>
+    <label>Observación:</label><br>
+    <textarea name="observacion" rows="4" cols="50"></textarea><br><br>
+
+    <!-- Campo oculto para equipos en formato texto -->
+    <input type="hidden" name="equipos" id="equipos_json">
 
     <button type="submit">Enviar</button>
   </form>
 
   <script>
-    document.getElementById("fecha").value = new Date().toLocaleString("es-EC");
+    const hoy = new Date();
+    const fechaFormateada = hoy.toLocaleString('es-EC');
+    document.getElementById('fecha').value = fechaFormateada;
 
     const equipos = [];
-    const tabla = document.getElementById("tablaEquipos");
-    const tbody = tabla.querySelector("tbody");
 
     function agregarEquipo() {
-      const serie = document.getElementById("serie").value.trim();
-      const articulo = document.getElementById("articulo").value.trim();
-      const estado = document.getElementById("estado").value;
+      const serie = document.getElementById('serie_temp').value.trim();
+      const articulo = document.getElementById('articulo_temp').value.trim();
+      const estado = document.getElementById('estado_temp').value;
 
       if (!serie || !articulo) {
-        alert("Debes completar todos los campos del equipo.");
+        alert('Falta completar serie o artículo');
         return;
       }
 
       equipos.push({ serie, articulo, estado });
-
-      const row = tbody.insertRow();
-      row.insertCell().textContent = serie;
-      row.insertCell().textContent = articulo;
-      row.insertCell().textContent = estado;
-
-      tabla.style.display = "table";
-
-      document.getElementById("serie").value = "";
-      document.getElementById("articulo").value = "";
-      document.getElementById("estado").value = "Buen estado";
+      actualizarTabla();
+      document.getElementById('serie_temp').value = '';
+      document.getElementById('articulo_temp').value = '';
     }
 
-    document.getElementById("formulario").addEventListener("submit", function(e) {
-      e.preventDefault();
+    function actualizarTabla() {
+      const tbody = document.querySelector('#tabla_equipos tbody');
+      tbody.innerHTML = '';
 
-      const data = {
-        fecha: document.getElementById("fecha").value,
-        vehiculo: document.getElementById("vehiculo").value,
-        placas: document.getElementById("placas").value,
-        responsable: document.getElementById("responsable").value,
-        observacion: document.getElementById("observacion").value,
-        equipos: equipos
-      };
-
-      fetch("https://n8n.tecnico.i.telconet.net/webhook/formulario_escaleras", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      }).then(() => {
-        alert("Formulario enviado correctamente.");
-        location.reload();
-      }).catch(err => {
-        alert("Error al enviar: " + err);
+      equipos.forEach(item => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `<td>${item.serie}</td><td>${item.articulo}</td><td>${item.estado}</td>`;
+        tbody.appendChild(fila);
       });
-    });
+
+      document.getElementById('equipos_json').value = JSON.stringify(equipos);
+    }
   </script>
 </body>
 </html>
