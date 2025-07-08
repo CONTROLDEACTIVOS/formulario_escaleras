@@ -2,57 +2,39 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario Escaleras</title>
+  <title>CONTROL DE ACTIVOS - ESCALERAS</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 30px;
+      background-color: #eef2f7;
+      padding: 20px;
     }
-    .container {
-      max-width: 600px;
-      background: #ffffff;
-      padding: 30px;
-      margin: auto;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    h1 {
+      color: navy;
     }
-    .titulo-principal {
-      color: #002147; /* Azul marino */
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 5px;
-      text-align: left;
-    }
-    .subtitulo {
-      color: #333333; /* Gris oscuro / negro */
-      font-size: 18px;
-      margin-bottom: 25px;
-      text-align: left;
+    h2 {
+      margin-top: -10px;
+      color: #444;
     }
     label {
       font-weight: bold;
       display: block;
-      margin-top: 15px;
-      color: #002147;
+      margin-top: 10px;
     }
-    input[type="text"],
-    input[type="email"],
-    input[type="date"],
-    select,
-    textarea {
+    input, select, textarea {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      padding: 6px;
+      margin-bottom: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
+    }
+    input[readonly] {
+      background-color: #eee;
     }
     button {
-      margin-top: 20px;
-      background-color: #002147;
+      background-color: navy;
       color: white;
-      padding: 10px 15px;
+      padding: 10px 14px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -60,49 +42,124 @@
     button:hover {
       background-color: #004080;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #003366;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="titulo-principal">CONTROL DE ACTIVOS</div>
-    <div class="subtitulo">CONTROL DE ESCALERAS</div>
-    <form action="https://n8n.tecnico.i.telconet.net/webhook-test/formulario_escaleras" method="POST">
-      <label for="fecha">Fecha:</label>
-      <input type="date" id="fecha" name="fecha" required>
+  <h1>CONTROL DE ACTIVOS</h1>
+  <h2>CONTROL DE ESCALERAS</h2>
 
-      <label for="vehiculo">N° Vehículo:</label>
-      <input type="text" id="vehiculo" name="vehiculo" required>
+  <form id="formulario">
+    <label>Fecha y hora:</label>
+    <input type="text" id="fecha" name="fecha" readonly>
 
-      <label for="placas">Placas:</label>
-      <input type="text" id="placas" name="placas" required>
+    <label>N° Vehículo:</label>
+    <input type="text" id="vehiculo" name="vehiculo" required>
 
-      <label for="responsable">Responsable (Correo):</label>
-      <input type="email" id="responsable" name="responsable" required>
+    <label>Placas:</label>
+    <input type="text" id="placas" name="placas" required>
 
-      <label for="serie">Serie del Equipo:</label>
-      <input type="text" id="serie" name="serie" required>
+    <label>Responsable (Correo):</label>
+    <input type="email" id="responsable" name="responsable" required>
 
-      <label for="articulo">Nombre del Artículo:</label>
-      <input type="text" id="articulo" name="articulo" required>
+    <label>Serie del Equipo:</label>
+    <input type="text" id="serie">
 
-      <label for="estado">Estado:</label>
-      <select id="estado" name="estado" required>
-        <option value="Buen estado">Buen estado</option>
-        <option value="Dañado">Dañado</option>
-        <option value="Faltante">Faltante</option>
-      </select>
+    <label>Nombre del Artículo:</label>
+    <input type="text" id="articulo">
 
-      <label for="observacion">Observación:</label>
-      <textarea id="observacion" name="observacion" rows="4"></textarea>
+    <label>Estado:</label>
+    <select id="estado">
+      <option value="Buen estado">Buen estado</option>
+      <option value="Dañado">Dañado</option>
+    </select>
 
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
+    <button type="button" onclick="agregarEquipo()">+ Agregar Equipo</button>
+
+    <table id="tablaEquipos" style="display:none;">
+      <thead>
+        <tr>
+          <th>Serie</th>
+          <th>Nombre del Artículo</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <label>Observación:</label>
+    <textarea id="observacion" name="observacion" rows="3"></textarea>
+
+    <button type="submit">Enviar</button>
+  </form>
 
   <script>
-    // Asignar la fecha actual automáticamente
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha').value = today;
+    document.getElementById("fecha").value = new Date().toLocaleString("es-EC");
+
+    const equipos = [];
+    const tabla = document.getElementById("tablaEquipos");
+    const tbody = tabla.querySelector("tbody");
+
+    function agregarEquipo() {
+      const serie = document.getElementById("serie").value.trim();
+      const articulo = document.getElementById("articulo").value.trim();
+      const estado = document.getElementById("estado").value;
+
+      if (!serie || !articulo) {
+        alert("Debes completar todos los campos del equipo.");
+        return;
+      }
+
+      equipos.push({ serie, articulo, estado });
+
+      const row = tbody.insertRow();
+      row.insertCell().textContent = serie;
+      row.insertCell().textContent = articulo;
+      row.insertCell().textContent = estado;
+
+      tabla.style.display = "table";
+
+      document.getElementById("serie").value = "";
+      document.getElementById("articulo").value = "";
+      document.getElementById("estado").value = "Buen estado";
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        fecha: document.getElementById("fecha").value,
+        vehiculo: document.getElementById("vehiculo").value,
+        placas: document.getElementById("placas").value,
+        responsable: document.getElementById("responsable").value,
+        observacion: document.getElementById("observacion").value,
+        equipos: equipos
+      };
+
+      fetch("https://n8n.tecnico.i.telconet.net/webhook/formulario_escaleras", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert("Formulario enviado correctamente.");
+        location.reload();
+      }).catch(err => {
+        alert("Error al enviar: " + err);
+      });
+    });
   </script>
 </body>
 </html>
