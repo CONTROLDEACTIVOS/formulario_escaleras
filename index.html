@@ -1,49 +1,196 @@
-function agregarEquipo() {
-  const serie = document.getElementById("serie").value.trim();
-  const articulo = document.getElementById("articulo").value.trim();
-  const estado = document.getElementById("estado").value;
-
-  if (!serie || !articulo) {
-    alert("Debes ingresar tanto la Serie como el Nombre del Artículo.");
-    return;
-  }
-
-  equipos.push({ serie, articulo, estado });
-
-  const tabla = document.getElementById("tablaEquipos");
-  const tbody = tabla.querySelector("tbody");
-  const row = tbody.insertRow();
-
-  row.insertCell().textContent = serie;
-  row.insertCell().textContent = articulo;
-  row.insertCell().textContent = estado;
-
-  const accionCell = row.insertCell();
-  const btnEliminar = document.createElement("button");
-  btnEliminar.textContent = "Eliminar";
-  btnEliminar.style.backgroundColor = "#d9534f";
-  btnEliminar.style.color = "white";
-  btnEliminar.style.border = "none";
-  btnEliminar.style.padding = "5px 10px";
-  btnEliminar.style.borderRadius = "4px";
-  btnEliminar.style.cursor = "pointer";
-
-  // Acción al eliminar
-  btnEliminar.onclick = function () {
-    const index = row.rowIndex - 1; // ajusta porque la cabecera ocupa la fila 0
-    equipos.splice(index, 1);       // quita del array
-    row.remove();                   // elimina la fila
-
-    if (equipos.length === 0) {
-      tabla.style.display = "none";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario Escaleras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f4f4;
     }
-  };
+    h2 {
+      color: #003366;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #001f3f;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #00517a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #001f3f;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h2>CONTROL DE ACTIVOS</h2>
+  <h3>CONTROL DE ESCALERAS</h3>
 
-  accionCell.appendChild(btnEliminar);
+  <form id="formulario">
+    <label>Fecha:</label>
+    <input type="text" name="Fecha" id="fechaCampo" readonly required>
 
-  tabla.style.display = "table";
+    <label>N° Vehículo:</label>
+    <input type="text" name="N°Vehículo" required>
 
-  document.getElementById("serie").value = "";
-  document.getElementById("articulo").value = "";
-  document.getElementById("estado").value = "Buen estado";
-}
+    <label>Placas:</label>
+    <input type="text" name="Placas" required>
+
+    <label>Responsable (Correo):</label>
+    <input type="email" name="Responsable" required>
+
+    <div id="equiposContainer">
+      <label>Serie del Equipo:</label>
+      <input type="text" id="serie">
+
+      <label>Nombre del Artículo:</label>
+      <input type="text" id="articulo">
+
+      <label>Estado:</label>
+      <select id="estado">
+        <option value="Buen estado">Buen estado</option>
+        <option value="Daño">Daño</option>
+        <option value="Faltante">Faltante</option>
+      </select>
+      <button type="button" onclick="agregarEquipo()">+ Agregar otro equipo</button>
+    </div>
+
+    <table id="tablaEquipos" style="display:none;">
+      <thead>
+        <tr>
+          <th>Serie</th>
+          <th>Artículo</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <label>Observación:</label>
+    <textarea name="Observacion" rows="3"></textarea>
+
+    <br><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    // Fecha automática al cargar
+    window.onload = function () {
+      const ahora = new Date();
+      const opciones = {
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
+      };
+      const formato = ahora.toLocaleString("es-EC", opciones);
+      document.getElementById("fechaCampo").value = formato;
+    };
+
+    const equipos = [];
+
+    function agregarEquipo() {
+      const serie = document.getElementById("serie").value.trim();
+      const articulo = document.getElementById("articulo").value.trim();
+      const estado = document.getElementById("estado").value;
+
+      if (!serie || !articulo) {
+        alert("Debes ingresar tanto la Serie como el Nombre del Artículo.");
+        return;
+      }
+
+      equipos.push({ serie, articulo, estado });
+
+      const tabla = document.getElementById("tablaEquipos");
+      const tbody = tabla.querySelector("tbody");
+      const row = tbody.insertRow();
+
+      row.insertCell().textContent = serie;
+      row.insertCell().textContent = articulo;
+      row.insertCell().textContent = estado;
+
+      const accionCell = row.insertCell();
+      const btnEliminar = document.createElement("button");
+      btnEliminar.textContent = "Eliminar";
+      btnEliminar.style.backgroundColor = "#d9534f";
+      btnEliminar.style.color = "white";
+      btnEliminar.style.border = "none";
+      btnEliminar.style.padding = "5px 10px";
+      btnEliminar.style.borderRadius = "4px";
+      btnEliminar.style.cursor = "pointer";
+
+      btnEliminar.onclick = function () {
+        const index = row.rowIndex - 1;
+        equipos.splice(index, 1);
+        row.remove();
+        if (equipos.length === 0) {
+          tabla.style.display = "none";
+        }
+      };
+
+      accionCell.appendChild(btnEliminar);
+      tabla.style.display = "table";
+
+      document.getElementById("serie").value = "";
+      document.getElementById("articulo").value = "";
+      document.getElementById("estado").value = "Buen estado";
+    }
+
+    // Envío de formulario
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      if (equipos.length === 0) {
+        alert("Debes ingresar al menos un equipo.");
+        return;
+      }
+
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      data.equipos = equipos;
+
+      fetch("https://n8n.tecnico.i.telconet.net/webhook/formulario_escaleras", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }).then(res => {
+        if (res.ok) {
+          alert("Formulario enviado correctamente");
+          location.reload();
+        } else {
+          alert("Error al enviar formulario");
+        }
+      }).catch(err => {
+        console.error(err);
+        alert("Error al enviar formulario");
+      });
+    });
+  </script>
+</body>
+</html>
