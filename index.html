@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -64,8 +63,8 @@
     <label>Placas:</label>
     <input type="text" name="Placas" required>
 
-    <label>Responsable (Correo):</label>
-    <input type="email" name="Responsable" required>
+    <label>Correo empresarial:</label>
+    <input type="email" name="Responsable" id="correoEmpresarial" required>
 
     <div id="equiposContainer">
       <label>Serie del Equipo:</label>
@@ -167,6 +166,12 @@
 
       if (equipos.length === 0) {
         alert("Debes ingresar al menos un equipo.");
+        return;
+      }
+
+      const correo = document.getElementById("correoEmpresarial").value.trim();
+      if (!correo.endsWith("@telconet.ec")) {
+        alert("El correo debe ser del dominio @telconet.ec");
         return;
       }
 
